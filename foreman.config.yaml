@@ -15,6 +15,7 @@ tasksFile: tasks.yaml
 # SHADOW_DATABASE_URL / REDIS_URL exported in the environment foreman itself
 # runs in (see .env.example) — foreman does not load .env files.
 checks:
+  install: pnpm install --frozen-lockfile
   generate: pnpm run generate
   migrate: pnpm run db:migrate:test
   typecheck: pnpm run typecheck
