@@ -1,18 +1,23 @@
 # foreman task queue. Tasks run highest priority first.
 # Each task becomes a branch foreman/<id> and a pull request.
 tasks:
-  - id: example-readme-badge
-    title: Add a "Built with foreman" section to the README
+  - id: list-tenants-endpoint
+    title: Add a GET /tenants endpoint
     description: |
-      Add a short section at the end of README.md explaining that some PRs in
-      this repository are opened automatically by foreman and must be reviewed
-      by a human before merging.
+      Add a GET /tenants endpoint to apps/api that returns every Tenant row
+      from the database (id, name, createdAt, updatedAt), ordered by name
+      ascending. Use the existing Prisma Tenant model; no new migration
+      should be needed. Document the response shape in Swagger the same way
+      the existing /health endpoint does.
     acceptance:
-      - README.md ends with a "Built with foreman" section
-      - The section says automated PRs are always reviewed by a human
-    priority: low
+      - GET /tenants returns 200 with a JSON array of tenants
+      - Each item includes id, name, createdAt, updatedAt
+      - Results are ordered by name ascending
+      - Covered by a test that seeds at least one tenant and asserts the response
+      - Documented in Swagger (visible at /docs)
+    priority: high
     # model: opus            # optional coder model override
-    # files: [README.md]     # optional hint: where to look first
+    # files: [apps/api/src]  # optional hint: where to look first
 
   # A task can also be given as just a free-text ask, with no title or
   # acceptance list written out. With `docs.enabled: true` in

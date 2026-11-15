@@ -1,5 +1,5 @@
 # foreman configuration (https://www.npmjs.com/package/claude-foreman)
-# Detected project type: unknown. Review the check commands below.
+# Project type: pnpm monorepo (NestJS api, React/Vite web, shared package).
 
 # owner/name; inferred from the "origin" remote when omitted
 # repo: your-org/your-repo
@@ -9,8 +9,18 @@ tasksFile: tasks.yaml
 # Commands the RUNNER executes, in order, after each coding attempt.
 # A task only ships when all of them exit 0. Agents can never edit these
 # commands or the files that define them.
+#
+# Requires Postgres (linetrack, linetrack_test, linetrack_shadow) and Redis
+# running (`docker compose up -d`), and DATABASE_URL / TEST_DATABASE_URL /
+# SHADOW_DATABASE_URL / REDIS_URL exported in the environment foreman itself
+# runs in (see .env.example) — foreman does not load .env files.
 checks:
-  test: "echo 'configure your checks in foreman.config.yaml' && exit 1"
+  generate: pnpm run generate
+  migrate: pnpm run db:migrate:test
+  typecheck: pnpm run typecheck
+  lint: pnpm run lint
+  test: pnpm run test
+  build: pnpm run build
 
 # Default model per role. Aliases (opus, sonnet, haiku) or full model IDs.
 models:
