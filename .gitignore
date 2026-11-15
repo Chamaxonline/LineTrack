@@ -1,0 +1,13 @@
+node_modules
+dist
+coverage
+.env
+playwright-report
+test-results
+.foreman/
+
+# editors / OS
+.DS_Store
+*.log
+.vscode/*
+!.vscode/extensions.json

@@ -1,0 +1,72 @@
+# foreman configuration (https://www.npmjs.com/package/claude-foreman)
+# Detected project type: unknown. Review the check commands below.
+
+# owner/name; inferred from the "origin" remote when omitted
+# repo: your-org/your-repo
+baseBranch: main
+tasksFile: tasks.yaml
+
+# Commands the RUNNER executes, in order, after each coding attempt.
+# A task only ships when all of them exit 0. Agents can never edit these
+# commands or the files that define them.
+checks:
+  test: "echo 'configure your checks in foreman.config.yaml' && exit 1"
+
+# Default model per role. Aliases (opus, sonnet, haiku) or full model IDs.
+models:
+  planner: opus      # turns the task into a plan (read-only)
+  coder: sonnet      # implements the plan
+  reviewer: opus     # optional review after checks pass (read-only)
+  escalation: opus   # coder model after repeated failures
+
+limits:
+  maxAttemptsPerTask: 5
+  escalateAfterFailures: 2   # switch coder to the escalation model after N failed attempts
+  stuckThreshold: 3          # stop early when the same error repeats N times
+  maxMinutesPerTask: 45
+  # maxSpendPerTaskUsd: 10
+  maxSpendPerRunUsd: 25
+  maxSpendPerDayUsd: 100
+  checkTimeoutMinutes: 15
+
+review:
+  enabled: true
+  maxRounds: 1
+
+ci:
+  wait: false          # wait for GitHub CI on the PR and feed failures back
+  timeoutMinutes: 30
+
+pr:
+  labels: [foreman]
+  needsHumanLabel: needs-human
+  draft: false
+
+issues:
+  enabled: false       # also take tasks from open issues with this label
+  label: foreman
+
+watch:
+  pollSeconds: 300
+
+agent:
+  # auto: CLAUDE_CODE_OAUTH_TOKEN (subscription, from `claude setup-token`) if set,
+  #       else ANTHROPIC_API_KEY (billed per use). Or force: subscription | api-key
+  auth: auto
+  rateLimitWaitMinutes: 30   # pause after a usage limit when the reset time is unknown
+  allowBash: true      # coder may run the check commands above (nothing else)
+  sandbox: true
+  extraAllowedCommands: []
+  envPassthrough: []
+
+# Let tasks be given as a bare `prompt:` instead of a full title/description/
+# acceptance list (see tasks.yaml). When enabled, foreman writes a story doc
+# under docs.dir before planning (or updates it if one already exists and is
+# missing something), and plans and codes from that doc. The analyst agent
+# that writes it may only touch files inside docs.dir.
+docs:
+  enabled: false
+  dir: docs/stories
+
+# Extra paths agents may never modify (CI, test/lint config, foreman files are always protected)
+protectedPaths: []

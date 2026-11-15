@@ -1,0 +1,24 @@
+import "reflect-metadata";
+import { NestFactory } from "@nestjs/core";
+import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
+import { ZodValidationPipe } from "./common/zod-validation.pipe";
+import { AppModule } from "./app.module";
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+
+  app.useGlobalPipes(new ZodValidationPipe());
+
+  const config = new DocumentBuilder()
+    .setTitle("LineTrack API")
+    .setDescription("LineTrack garment production tracking API")
+    .setVersion("0.0.0")
+    .build();
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup("docs", app, document);
+
+  const port = process.env.PORT ? Number(process.env.PORT) : 3000;
+  await app.listen(port);
+}
+
+bootstrap();

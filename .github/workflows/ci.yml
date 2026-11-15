@@ -1,0 +1,80 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: linetrack
+          POSTGRES_PASSWORD: linetrack
+          POSTGRES_DB: linetrack
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U linetrack"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgresql://linetrack:linetrack@localhost:5432/linetrack
+      TEST_DATABASE_URL: postgresql://linetrack:linetrack@localhost:5432/linetrack_test
+      SHADOW_DATABASE_URL: postgresql://linetrack:linetrack@localhost:5432/linetrack_shadow
+      REDIS_URL: redis://localhost:6379
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Create test and shadow databases
+        run: |
+          PGPASSWORD=linetrack psql -h localhost -U linetrack -d linetrack -c "CREATE DATABASE linetrack_test;"
+          PGPASSWORD=linetrack psql -h localhost -U linetrack -d linetrack -c "CREATE DATABASE linetrack_shadow;"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma client
+        run: pnpm run generate
+
+      - name: Apply test migrations
+        run: pnpm run db:migrate:test
+
+      - name: Typecheck
+        run: pnpm run typecheck
+
+      - name: Lint
+        run: pnpm run lint
+
+      - name: Install Playwright browsers
+        run: pnpm --filter @linetrack/web exec playwright install --with-deps chromium
+
+      - name: Test
+        run: pnpm run test
+
+      - name: Build
+        run: pnpm run build

@@ -1,0 +1,31 @@
+{
+  "name": "linetrack",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "engines": {
+    "node": ">=20",
+    "pnpm": ">=9"
+  },
+  "packageManager": "pnpm@9.15.9",
+  "scripts": {
+    "generate": "pnpm --filter @linetrack/api run generate",
+    "db:migrate:test": "pnpm --filter @linetrack/api run db:migrate:test",
+    "typecheck": "pnpm -r run typecheck",
+    "lint": "pnpm -r run lint",
+    "test": "pnpm -r run test && pnpm --filter @linetrack/web run test:e2e",
+    "build": "pnpm -r run build",
+    "dev": "pnpm --parallel --filter @linetrack/api --filter @linetrack/web run dev"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.5",
+    "eslint": "^9.39.5",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "globals": "^17.14.0",
+    "prettier": "^3.10.1",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.72.2"
+  }
+}
