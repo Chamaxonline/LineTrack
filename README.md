@@ -5,7 +5,7 @@ monorepo: a NestJS API, a React web app, and a shared TypeScript package.
 
 ## Requirements
 
-- Node.js 20+
+- Node.js 22+
 - pnpm 9+
 - Docker Desktop (PostgreSQL 16 + Redis 7 for local development)
 
